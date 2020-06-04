@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -83,12 +85,9 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
-
         mArrayList = new ArrayList<>();
-
         mAdapter = new CustomAdapter(this, mArrayList);
         mRecyclerView.setAdapter(mAdapter);
-
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
                 mLinearLayoutManager.getOrientation());
@@ -120,16 +119,11 @@ public class MainActivity extends AppCompatActivity {
             // 1. 화면 아래쪽에 있는 데이터 추가 버튼을 클릭하면
             @Override
             public void onClick(View v) {
-
-
                 // 2. 레이아웃 파일 edit_box.xml 을 불러와서 화면에 다이얼로그를 보여줍니다.
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-
                 View view = LayoutInflater.from(MainActivity.this)
                         .inflate(R.layout.edit_box, null, false);
                 builder.setView(view);
-
 
                 final Button ButtonSubmit = (Button) view.findViewById(R.id.button_dialog_submit);
                 final EditText editTextID = (EditText) view.findViewById(R.id.edittext_dialog_id);
@@ -147,26 +141,17 @@ public class MainActivity extends AppCompatActivity {
 
 
                     public void onClick(View v) {
-
-
                         // 4. 사용자가 입력한 내용을 가져와서
                         String strID = editTextID.getText().toString();
                         String strEnglish = editTextEnglish.getText().toString();
                         String strKorean = editTextKorean.getText().toString();
 
-
                         // 5. ArrayList에 추가하고
-
                         Dictionary dict = new Dictionary(strID, strEnglish, strKorean);
                         mArrayList.add(0, dict); //첫번째 줄에 삽입됨
-                        //mArrayList.add(dict); //마지막 줄에 삽입됨
-
 
                         // 6. 어댑터에서 RecyclerView에 반영하도록 합니다.
-
                         mAdapter.notifyItemInserted(0);
-                        //mAdapter.notifyDataSetChanged();
-
                         dialog.dismiss();
                     }
                 });
@@ -175,12 +160,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        Button buttonAnalyze = (Button) findViewById(R.id.button_main_analyze);
+        buttonAnalyze.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
         setDrawer();
     }
 
     public interface ClickListener {
         void onClick(View view, int position);
-
         void onLongClick(View view, int position);
     }
 
@@ -310,4 +302,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }
