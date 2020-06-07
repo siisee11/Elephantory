@@ -11,10 +11,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -22,14 +26,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -45,6 +58,8 @@ import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -57,10 +72,37 @@ public class MainActivity extends AppCompatActivity {
     private CustomAdapter mAdapter;
     private int count = -1;
 
+    /* View */
+    private View contentView;
+    private View loadingView;
+
+    /* animation */
+    private int animationDuration;
+
+    /* from Analyze */
+    EditText editText;
+    static RequestQueue requestQueue;
+    JobList jobList;
+    RecyclerView recyclerView;
+    JobAdapter adapter;
+    DBHelper dbHelper;
+    String dbName = "job_history";
+    String tableName;
+    SQLiteDatabase db;
+    Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        contentView = findViewById(R.id.pullToRefresh);
+        loadingView = (ProgressBar) findViewById(R.id.loading_spinner); // Final so we can access it from the other thread
+        loadingView.setVisibility(View.GONE);
+
+        // Retrieve and cache the system's default "short" animation time.
+        animationDuration = getResources().getInteger(
+                android.R.integer.config_longAnimTime);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -79,8 +121,97 @@ public class MainActivity extends AppCompatActivity {
         }
         });
 
-        setDrawer();
+        editText = findViewById(R.id.editTextURL);
 
+        Button button = findViewById(R.id.buttonRequest);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = "Connect to Hadoop history server";
+                String message = "Would you like to get the results?";
+                String titleButtonYes = "Yes";
+                String titleButtonNo = "No";
+
+                makeRequest();
+//                AlertDialog dialog = makeRequestDialog(title, message, titleButtonYes, titleButtonNo);
+//                dialog.show();
+
+//                Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
+
+                contentView.setVisibility(View.GONE);
+                loadingView.setVisibility(View.VISIBLE);
+
+// Create a Handler instance on the main thread
+                final Handler handler = new Handler();
+
+// Create and start a new Thread
+                new Thread(new Runnable() {
+                    public void run() {
+                        try{
+                            Thread.sleep(5000);
+                        }
+                        catch (Exception e) { } // Just catch the InterruptedException
+
+                        // Now we use the Handler to post back to the main thread
+                        handler.post(new Runnable() {
+                            public void run() {
+                                // Set the View's visibility back on the main UI Thread
+                                crossfade();
+//                                loadingView.setVisibility(View.INVISIBLE);
+ //                               contentView.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    }
+
+                }).start();
+
+            }
+        });
+
+        Button button2 = findViewById(R.id.buttonDB);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentDB = new Intent(getApplicationContext(), Database.class);
+                startActivity(intentDB);
+            }
+        });
+
+        if (requestQueue == null) {
+            requestQueue = Volley.newRequestQueue(getApplicationContext());
+        }
+
+        recyclerView = findViewById(R.id.recyclerview_main_list); // XML 레이아웃에 정의한 리싸이클러뷰 객체 참조
+        LinearLayoutManager layoutManager =
+                new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+
+        recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new JobAdapter();
+        recyclerView.setAdapter(adapter); // 리싸이클러뷰에 어댑터 설정
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+//                Dictionary dict = mArrayList.get(position);
+//                Toast.makeText(getApplicationContext(), dict.getId()+' '+dict.getEnglish()+' '+dict.getKorean(), Toast.LENGTH_LONG).show();
+                Log.d("onClick", "position");
+                Intent intent = new Intent(getBaseContext(), ResultActivity.class);
+
+                intent.putExtra("id", position);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+            }
+        }));
+
+        createDatabase(dbName);
+
+
+
+        /*
         RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_main_list);
         LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
@@ -167,6 +298,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
             }
         });
+
+
+         */
 
         setDrawer();
     }
@@ -303,4 +437,149 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /* loading fade */
+
+    private void crossfade() {
+
+        // Set the content view to 0% opacity but visible, so that it is visible
+        // (but fully transparent) during the animation.
+        contentView.setAlpha(0f);
+        contentView.setVisibility(View.VISIBLE);
+
+        // Animate the content view to 100% opacity, and clear any animation
+        // listener set on the view.
+        contentView.animate()
+                .alpha(1f)
+                .setDuration(animationDuration)
+                .setListener(null);
+
+        // Animate the loading view to 0% opacity. After the animation ends,
+        // set its visibility to GONE as an optimization step (it won't
+        // participate in layout passes, etc.)
+        loadingView.animate()
+                .alpha(0f)
+                .setDuration(animationDuration)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        loadingView.setVisibility(View.GONE);
+                    }
+                });
+    }
+
+    /* from Analyze */
+    public void makeRequest() {
+        String url = editText.getText().toString();
+
+        StringRequest request = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        printDebug("응답 -> " + response);
+
+                        processResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        printDebug("에러 -> " + error.getMessage());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<String,String>();
+
+                return params;
+            }
+        };
+
+        request.setShouldCache(false);
+        requestQueue.add(request);
+        printDebug("요청 보냄.");
+    }
+
+    public void processResponse(String response) {
+        Gson gson = new Gson();
+        jobList = gson.fromJson(response, JobList.class);
+
+        printDebug("Total number of jobs : " + jobList.jobResult.jobResultList.size());
+
+        for (int i = 0; i < jobList.jobResult.jobResultList.size(); i++) {
+            Job job = jobList.jobResult.jobResultList.get(i);
+
+            adapter.addItem(job);
+        }
+
+        adapter.notifyDataSetChanged();
+
+        // After get data from web, then insert data to DB
+        insertDB();
+    }
+
+    private void createDatabase(String name) {
+        printDebug("///// createDatabase()");
+        // DBHelper 객체 생성
+        dbHelper = new DBHelper(this);
+        db = dbHelper.getWritableDatabase();
+        printDebug("///// Database=" + name);
+    }
+
+    private void insertDB() {
+        Job tmpJob;
+        String sql;
+
+        for(int i = 0; i < jobList.jobResult.jobResultList.size(); i++) {
+            tmpJob = jobList.jobResult.jobResultList.get(i);
+            sql = String.format("INSERT OR IGNORE INTO Job VALUES(NULL, '%s', '%s', '%s', '%s');",
+                    tmpJob.job_id, tmpJob.name, tmpJob.user, tmpJob.elapsed_time);
+            db.execSQL(sql);
+        }
+        Toast.makeText(MainActivity.this, "Insert to DB: Success", Toast.LENGTH_SHORT).show();
+    }
+
+
+    private AlertDialog makeRequestDialog(CharSequence title, CharSequence message,
+                                          CharSequence titleButtonYes, CharSequence titleButtonNo) {
+        AlertDialog.Builder requestDialog = new AlertDialog.Builder(this);
+        requestDialog.setTitle(title);
+        requestDialog.setMessage(message);
+        requestDialog.setPositiveButton(titleButtonYes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Toast.makeText(MainActivity.this, "It will take 5 seconds.", Toast.LENGTH_SHORT).show();
+
+                /*
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(Analyze.this, "Request completed.", Toast.LENGTH_SHORT).show();
+                    }
+                }, 5000);
+                 */
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                makeRequest();
+            }
+        });
+
+
+
+        requestDialog.setNegativeButton(titleButtonNo, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {}
+        });
+
+        return requestDialog.create();
+    }
+
+
+    public void printDebug(String data) {
+        Log.d("Analyze", data);
+    }
 }
