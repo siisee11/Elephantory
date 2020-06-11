@@ -3,6 +3,8 @@
     package="skku.edu.elephantory">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -12,9 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
-        <activity android:name=".Database"></activity>
-        <activity android:name=".ResultActivity"></activity>
+        <activity android:name=".ShowTextFile"></activity>
+        <activity android:name=".Database" />
+        <activity android:name=".ResultActivity" />
         <activity android:name=".ReportActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".LoginActivity">

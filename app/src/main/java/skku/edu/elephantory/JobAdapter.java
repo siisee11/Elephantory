@@ -1,5 +1,6 @@
 package skku.edu.elephantory;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,11 @@ public class JobAdapter extends RecyclerView.Adapter<JobAdapter.ViewHolder> {
     }
 
     public void addItem(Job item) {
-        items.add(item);
+        if(!items.contains(item)) {
+            Log.d("JobAdapter", "중복 아님! " + item.job_id);
+            items.add(item);
+        } else
+            Log.d("JobAdapter", "중복! add X " + item.job_id);
     }
 
     public void setItems(ArrayList<Job> items) {
