@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:text="http://112.169.177.90:8888"
+        android:text="http://115.145.178.88:8887"
         app:layout_constraintBottom_toTopOf="@id/buttonRequest"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
