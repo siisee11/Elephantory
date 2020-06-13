@@ -26,7 +26,6 @@ public class CollectData extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collect);
-
         startButton = (Button)findViewById(R.id.buttonCollectStart);
 
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
