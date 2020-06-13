@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -162,12 +164,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
+                // 여기서 text file 보여주기
 //                Dictionary dict = mArrayList.get(position);
 //                Toast.makeText(getApplicationContext(), dict.getId()+' '+dict.getEnglish()+' '+dict.getKorean(), Toast.LENGTH_LONG).show();
-                Log.d("onClick", "position");
-                Intent intent = new Intent(getBaseContext(), ResultActivity.class);
+                String job_id = jobList.jobResult.jobResultList.get(position).job_id;
+                Log.d("onClick", "///// position: " + position + ", " + jobList.jobResult.jobResultList.get(position).job_id);
+                Intent intent = new Intent(getBaseContext(), ShowTextFile.class);
 
-                intent.putExtra("id", position);
+                intent.putExtra("job_id", job_id);
                 startActivity(intent);
             }
 
@@ -223,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
                     View child = recyclerView.findChildViewUnder(e.getX(), e.getY());
                     if (child != null && clickListener != null) {
                         clickListener.onLongClick(child, recyclerView.getChildAdapterPosition(child));
+                        Log.d("MainActivity", "Child is selected ....");
                     }
                 }
             });
@@ -265,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
         PrimaryDrawerItem gotoReportItem = new PrimaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_report);
         SecondaryDrawerItem signOutItem = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.drawer_item_sign_out);
 
+/*
         // Create the AccountHeader
      /*   AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
