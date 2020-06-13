@@ -14,4 +14,14 @@ public class Job {
     String reduces_total;
     String reduces_completed;
     String elapsed_time;
+
+    // added by daegyu
+    @Override
+    public boolean equals(Object object) {
+        boolean sameSame = false;
+        if (object != null && object instanceof Job){
+            sameSame = this.job_id.equals(((Job) object).job_id);
+        }
+        return sameSame;
+    }
 }
