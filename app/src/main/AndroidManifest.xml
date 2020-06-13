@@ -14,6 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
+        <activity android:name=".MapReduceRunner"></activity>
         <activity android:name=".ShowTextFile"></activity>
         <activity android:name=".Database" />
         <activity android:name=".ResultActivity" />

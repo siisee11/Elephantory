@@ -39,10 +39,29 @@
         android:id="@+id/buttonDB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonMR"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Database"
+        android:textAllCaps="false" />
+    <Button
+        android:id="@+id/buttonMR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/buttonCollectData"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Run MapReduce"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/buttonCollectData"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Collect Data"
         android:textAllCaps="false" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

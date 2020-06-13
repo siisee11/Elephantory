@@ -88,7 +88,8 @@ public class LoginActivity extends AppCompatActivity implements  View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.googleButton:
-                signInGoogle();
+                //signInGoogle();
+                signIn();
                 break;
             case R.id.btnLogin:
                 signIn();

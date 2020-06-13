@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:text="http://112.169.177.90:8888" />
+        android:text="http://115.145.178.88:8887" />
 
     <Button
         android:id="@+id/buttonRequest"
