@@ -1,10 +1,13 @@
 package skku.edu.elephantory;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -57,17 +60,41 @@ public class MapReduceRunner extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MapReduceRunner.this);
 
-                builder.setTitle("Put InputFile").setMessage("반갑습니다");
-                builder.setPositiveButton("확인", null);
+                final String[] hCmd = {"run_grep.sh"};
+                LinearLayout dialog_group = new LinearLayout((MapReduceRunner.this));
+                dialog_group.setOrientation(LinearLayout.VERTICAL);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapReduceRunner.this);
+                final EditText input = new EditText(getApplicationContext());
+                input.setHint("Input");
+                final EditText output = new EditText(getApplicationContext());
+                output.setHint("Output");
+                final EditText word = new EditText(getApplicationContext());
+                word.setHint("Word");
+
+                dialog_group.addView(input);
+                dialog_group.addView(output);
+                dialog_group.addView(word);
+                builder.setView(dialog_group);
+                builder.setTitle("Put InputFile");
+                builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String inputFile = input.getText().toString();
+                        String wordToFind = word.getText().toString();
+                        String outputFile = output.getText().toString();
+                        hCmd[0] += (" /" + inputFile + " /" + outputFile + " \"" + wordToFind + "\"");
+                        Log.d(TAG, hCmd[0]);
+                        AnalyzeThread analyzeThread = new AnalyzeThread(hCmd[0]);
+                        analyzeThread.start();
+                    }
+                });
+
                 builder.setNegativeButton("취소", null);
 
                 AlertDialog alertDialog = builder.create();
-
                 alertDialog.show();
-                AnalyzeThread analyzeThread = new AnalyzeThread("run_grep.sh");
-                analyzeThread.start();
+
             }
 
         });
@@ -76,21 +103,79 @@ public class MapReduceRunner extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                AnalyzeThread analyzeThread = new AnalyzeThread("run_wc.sh");
-                analyzeThread.start();
+
+                final String[] hCmd = {"run_wc.sh"};
+                LinearLayout dialog_group = new LinearLayout((MapReduceRunner.this));
+                dialog_group.setOrientation(LinearLayout.VERTICAL);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapReduceRunner.this);
+                final EditText input = new EditText(getApplicationContext());
+                input.setHint("Input");
+                final EditText output = new EditText(getApplicationContext());
+                output.setHint("Output");
+
+                dialog_group.addView(input);
+                dialog_group.addView(output);
+                builder.setView(dialog_group);
+                builder.setTitle("Put InputFile");
+                builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String inputFile = input.getText().toString();
+                        String outputFile = output.getText().toString();
+                        hCmd[0] += (" /" + inputFile + " /" + outputFile);
+                        Log.d(TAG, hCmd[0]);
+                        AnalyzeThread analyzeThread = new AnalyzeThread(hCmd[0]);
+                        analyzeThread.start();
+                    }
+                });
+
+                builder.setNegativeButton("취소", null);
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
             }
 
         });
-
         sortButton.setOnClickListener(new Button.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                AnalyzeThread analyzeThread = new AnalyzeThread("run_sort.sh");
-                analyzeThread.start();
+
+                final String[] hCmd = {"run_sort.sh"};
+                LinearLayout dialog_group = new LinearLayout((MapReduceRunner.this));
+                dialog_group.setOrientation(LinearLayout.VERTICAL);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MapReduceRunner.this);
+                final EditText input = new EditText(getApplicationContext());
+                input.setHint("Input");
+                final EditText output = new EditText(getApplicationContext());
+                output.setHint("Output");
+
+                dialog_group.addView(input);
+                dialog_group.addView(output);
+                builder.setView(dialog_group);
+                builder.setTitle("Put InputFile");
+                builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String inputFile = input.getText().toString();
+                        String outputFile = output.getText().toString();
+                        hCmd[0] += (" /" + inputFile + " /" + outputFile + " \"");
+                        Log.d(TAG, hCmd[0]);
+                        AnalyzeThread analyzeThread = new AnalyzeThread(hCmd[0]);
+                        analyzeThread.start();
+                    }
+                });
+
+                builder.setNegativeButton("취소", null);
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
             }
 
         });
+
     }
 
     class AnalyzeThread extends Thread {

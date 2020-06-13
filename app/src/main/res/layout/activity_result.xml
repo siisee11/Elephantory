@@ -6,10 +6,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
+    <ImageView
+        android:id="@+id/appLogoImageResult"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginRight="5dp"
+        app:layout_constraintEnd_toStartOf="@id/appNameTextResult"
+        app:layout_constraintTop_toTopOf="@id/appNameTextResult"
+        app:layout_constraintBottom_toBottomOf="@id/appNameTextResult"
+        app:srcCompat="@mipmap/elephantory" />
+
+    <TextView
+        android:id="@+id/appNameTextResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="@string/app_name"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.55"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/textView_result"
-        android:layout_width="292dp"
-        android:layout_height="594dp"
+        android:layout_width="360dp"
+        android:layout_height="600dp"
         android:padding="5dp"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             new Thread(new Runnable() {
                            public void run() {
                 try{
-                    Thread.sleep(5000);
+                    Thread.sleep(2000);
                 }
                 catch (Exception e) { } // Just catch the InterruptedException
 
@@ -441,44 +441,6 @@ public class MainActivity extends AppCompatActivity {
         }
         Toast.makeText(MainActivity.this, "Insert to DB: Success", Toast.LENGTH_SHORT).show();
     }
-
-
-    private AlertDialog makeRequestDialog(CharSequence title, CharSequence message,
-                                          CharSequence titleButtonYes, CharSequence titleButtonNo) {
-        AlertDialog.Builder requestDialog = new AlertDialog.Builder(this);
-        requestDialog.setTitle(title);
-        requestDialog.setMessage(message);
-        requestDialog.setPositiveButton(titleButtonYes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(MainActivity.this, "It will take 5 seconds.", Toast.LENGTH_SHORT).show();
-
-                /*
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(Analyze.this, "Request completed.", Toast.LENGTH_SHORT).show();
-                    }
-                }, 5000);
-                 */
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                makeRequest();
-            }
-        });
-
-
-
-        requestDialog.setNegativeButton(titleButtonNo, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {}
-        });
-
-        return requestDialog.create();
-    }
-
 
     public void printDebug(String data) {
         Log.d("Analyze", data);
