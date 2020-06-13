@@ -13,6 +13,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
+        <activity android:name=".MapReduceRunner"></activity>
         <activity android:name=".Database"></activity>
         <activity android:name=".ResultActivity"></activity>
         <activity android:name=".ReportActivity" />

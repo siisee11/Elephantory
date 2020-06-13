@@ -3,7 +3,6 @@ package skku.edu.elephantory;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -20,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -43,16 +41,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
-import com.mikepenz.materialdrawer.AccountHeader;
-import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.DrawerBuilder;
-import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
@@ -91,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     SQLiteDatabase db;
     Handler handler = new Handler();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
 
         mGoogleSignInAccount = getIntent().getParcelableExtra(GOOGLE_ACCOUNT);
 
+        // TCP Connection to Hadoop Cluster
+
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                                        @Override
@@ -123,24 +117,32 @@ public class MainActivity extends AppCompatActivity {
 
         editText = findViewById(R.id.editTextURL);
 
-        Button req_button = findViewById(R.id.buttonRequest);
-        req_button.setOnClickListener(new View.OnClickListener() {
+        Button button = findViewById(R.id.buttonRequest);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String title = "Connect to Hadoop history server";
+                String message = "Would you like to get the results?";
+                String titleButtonYes = "Yes";
+                String titleButtonNo = "No";
+
+                makeRequest();
+//                AlertDialog dialog = makeRequestDialog(title, message, titleButtonYes, titleButtonNo);
+//                dialog.show();
+
+//                Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
 
                 contentView.setVisibility(View.GONE);
                 loadingView.setVisibility(View.VISIBLE);
 
-                makeRequest();
-
-                // Create a Handler instance on the main thread
+// Create a Handler instance on the main thread
                 final Handler handler = new Handler();
 
-                // Create and start a new Thread
+// Create and start a new Thread
                 new Thread(new Runnable() {
                     public void run() {
                         try{
-                            Thread.sleep(3000);
+                            Thread.sleep(5000);
                         }
                         catch (Exception e) { } // Just catch the InterruptedException
 
@@ -149,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
                                 // Set the View's visibility back on the main UI Thread
                                 crossfade();
+//                                loadingView.setVisibility(View.INVISIBLE);
+ //                               contentView.setVisibility(View.VISIBLE);
                             }
                         });
                     }
@@ -158,21 +162,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button db_button = findViewById(R.id.buttonDB);
-        db_button.setOnClickListener(new View.OnClickListener() {
+        Button button2 = findViewById(R.id.buttonDB);
+        button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentDB = new Intent(getApplicationContext(), Database.class);
                 startActivity(intentDB);
-            }
-        });
-
-        Button result_button= findViewById(R.id.buttonResult);
-        result_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(getApplicationContext(), ResultActivity.class);
-                startActivity(intent);
             }
         });
 
@@ -207,101 +202,27 @@ public class MainActivity extends AppCompatActivity {
         }));
 
         createDatabase(dbName);
-
-
-
-        /*
-        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview_main_list);
-        LinearLayoutManager mLinearLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
-
-        mArrayList = new ArrayList<>();
-        mAdapter = new CustomAdapter(this, mArrayList);
-        mRecyclerView.setAdapter(mAdapter);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
-                mLinearLayoutManager.getOrientation());
-        mRecyclerView.addItemDecoration(dividerItemDecoration);
-
-        mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new ClickListener() {
-            @Override
-            public void onClick(View view, int position) {
-                Dictionary dict = mArrayList.get(position);
-                Toast.makeText(getApplicationContext(), dict.getId()+' '+dict.getEnglish()+' '+dict.getKorean(), Toast.LENGTH_LONG).show();
-
-                Intent intent = new Intent(getBaseContext(), ResultActivity.class);
-
-                intent.putExtra("id", dict.getId());
-                intent.putExtra( "korean", dict.getKorean());
-                intent.putExtra("english", dict.getEnglish());
-
-                startActivity(intent);
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-            }
-        }));
-
-        Button buttonInsert = (Button) findViewById(R.id.button_main_insert);
-        buttonInsert.setOnClickListener(new View.OnClickListener() {
-
-            // 1. 화면 아래쪽에 있는 데이터 추가 버튼을 클릭하면
-            @Override
-            public void onClick(View v) {
-                // 2. 레이아웃 파일 edit_box.xml 을 불러와서 화면에 다이얼로그를 보여줍니다.
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                View view = LayoutInflater.from(MainActivity.this)
-                        .inflate(R.layout.edit_box, null, false);
-                builder.setView(view);
-
-                final Button ButtonSubmit = (Button) view.findViewById(R.id.button_dialog_submit);
-                final EditText editTextID = (EditText) view.findViewById(R.id.edittext_dialog_id);
-                final EditText editTextEnglish = (EditText) view.findViewById(R.id.edittext_dialog_endlish);
-                final EditText editTextKorean = (EditText) view.findViewById(R.id.edittext_dialog_korean);
-
-                ButtonSubmit.setText("삽입");
-
-                final AlertDialog dialog = builder.create();
-
-
-                // 3. 다이얼로그에 있는 삽입 버튼을 클릭하면
-
-                ButtonSubmit.setOnClickListener(new View.OnClickListener() {
-
-
-                    public void onClick(View v) {
-                        // 4. 사용자가 입력한 내용을 가져와서
-                        String strID = editTextID.getText().toString();
-                        String strEnglish = editTextEnglish.getText().toString();
-                        String strKorean = editTextKorean.getText().toString();
-
-                        // 5. ArrayList에 추가하고
-                        Dictionary dict = new Dictionary(strID, strEnglish, strKorean);
-                        mArrayList.add(0, dict); //첫번째 줄에 삽입됨
-
-                        // 6. 어댑터에서 RecyclerView에 반영하도록 합니다.
-                        mAdapter.notifyItemInserted(0);
-                        dialog.dismiss();
-                    }
-                });
-
-                dialog.show();
-            }
-        });
-
-
-        Button buttonAnalyze = (Button) findViewById(R.id.button_main_analyze);
-        buttonAnalyze.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
-
-         */
-
         setDrawer();
+
+        Button buttonCollectData = findViewById(R.id.buttonCollectData);
+        buttonCollectData.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Intent intentCollectData = new Intent(getApplicationContext(), CollectData.class);
+                startActivity(intentCollectData);
+            }
+        });
+
+        Button buttonAnalyzeData = findViewById(R.id.buttonMR);
+        buttonAnalyzeData.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Intent intentAnalyzeData = new Intent(getApplicationContext(), MapReduceRunner.class);
+                startActivity(intentAnalyzeData);
+            }
+        });
     }
 
     public interface ClickListener {
@@ -370,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         SecondaryDrawerItem signOutItem = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.drawer_item_sign_out);
 
         // Create the AccountHeader
-        AccountHeader headerResult = new AccountHeaderBuilder()
+     /*   AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
@@ -414,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
                     };
                 })
                 .build();
-
+*/
     } /* set drawer */
 
     private void gotoReportActivity() {
