@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MapReduceRunner" >
+
+  <!--  <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+-->
+        <Button
+            android:id="@+id/buttonMRStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            app:layout_constraintBottom_toTopOf="@+id/buttonGrep"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/buttonGrep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Grep"
+            app:layout_constraintBottom_toTopOf="@+id/buttonWC"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/buttonWC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="WordCount"
+            app:layout_constraintBottom_toTopOf="@+id/buttonSort"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:textAllCaps="false" />
+        <Button
+            android:id="@+id/buttonSort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sort"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+
+            android:textAllCaps="false" />
+
+    <TextView
+        android:id="@+id/InputFileName"
+        android:layout_width="match_parent"
+        android:layout_height="37dp"
+        android:text="TextView"
+        android:visibility="invisible" />
+    <!--  </LinearLayout> -->
+</LinearLayout>
