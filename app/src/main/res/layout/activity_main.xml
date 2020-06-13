@@ -6,21 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!--
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:orientation="vertical">
-       -->
-
     <EditText
         android:id="@+id/editTextURL"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:text="http://112.169.177.90:8888"
+        android:text="http://115.145.178.88:8887"
         app:layout_constraintBottom_toTopOf="@id/buttonRequest"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -39,10 +31,21 @@
         android:id="@+id/buttonDB"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonResult"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:text="Database"
+        android:textAllCaps="false" />
+
+
+    <Button
+        android:id="@+id/buttonResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Goto result"
         android:textAllCaps="false" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -72,7 +75,6 @@
             app:layout_constraintVertical_weight="9" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
 
     <ProgressBar
         android:id="@+id/loading_spinner"

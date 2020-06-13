@@ -123,32 +123,24 @@ public class MainActivity extends AppCompatActivity {
 
         editText = findViewById(R.id.editTextURL);
 
-        Button button = findViewById(R.id.buttonRequest);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button req_button = findViewById(R.id.buttonRequest);
+        req_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String title = "Connect to Hadoop history server";
-                String message = "Would you like to get the results?";
-                String titleButtonYes = "Yes";
-                String titleButtonNo = "No";
-
-                makeRequest();
-//                AlertDialog dialog = makeRequestDialog(title, message, titleButtonYes, titleButtonNo);
-//                dialog.show();
-
-//                Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
 
                 contentView.setVisibility(View.GONE);
                 loadingView.setVisibility(View.VISIBLE);
 
-// Create a Handler instance on the main thread
+                makeRequest();
+
+                // Create a Handler instance on the main thread
                 final Handler handler = new Handler();
 
-// Create and start a new Thread
+                // Create and start a new Thread
                 new Thread(new Runnable() {
                     public void run() {
                         try{
-                            Thread.sleep(5000);
+                            Thread.sleep(3000);
                         }
                         catch (Exception e) { } // Just catch the InterruptedException
 
@@ -157,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
                                 // Set the View's visibility back on the main UI Thread
                                 crossfade();
-//                                loadingView.setVisibility(View.INVISIBLE);
- //                               contentView.setVisibility(View.VISIBLE);
                             }
                         });
                     }
@@ -168,12 +158,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button button2 = findViewById(R.id.buttonDB);
-        button2.setOnClickListener(new View.OnClickListener() {
+        Button db_button = findViewById(R.id.buttonDB);
+        db_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentDB = new Intent(getApplicationContext(), Database.class);
                 startActivity(intentDB);
+            }
+        });
+
+        Button result_button= findViewById(R.id.buttonResult);
+        result_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(getApplicationContext(), ResultActivity.class);
+                startActivity(intent);
             }
         });
 
