@@ -42,9 +42,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
@@ -103,10 +110,9 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
         mGoogleSignInAccount = getIntent().getParcelableExtra(GOOGLE_ACCOUNT);
 
-        // TCP Connection to Hadoop Cluster
+        // TCP Connection to hadoop Cluster
 
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -188,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                Intent intentCollectData = new Intent(getApplicationContext(), CollectData.class);
+                Intent intentCollectData = new Intent(getApplicationContext(), HDFSManager.class);
                 startActivity(intentCollectData);
             }
         });
@@ -267,12 +273,10 @@ public class MainActivity extends AppCompatActivity {
 
         //if you want to update the items at a later time it is recommended to keep it in a variable
         PrimaryDrawerItem gotoHomeItem = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.drawer_item_home);
-        PrimaryDrawerItem gotoReportItem = new PrimaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_report);
-        SecondaryDrawerItem signOutItem = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.drawer_item_sign_out);
+        SecondaryDrawerItem signOutItem = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_sign_out);
 
-/*
         // Create the AccountHeader
-     /*   AccountHeader headerResult = new AccountHeaderBuilder()
+        AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
@@ -295,7 +299,6 @@ public class MainActivity extends AppCompatActivity {
 //                .withToolbar(toolbar)
                 .addDrawerItems(
                         gotoHomeItem,
-                        gotoReportItem,
                         new DividerDrawerItem(),
                         signOutItem
                 )
@@ -305,9 +308,6 @@ public class MainActivity extends AppCompatActivity {
                         // do something with the clicked item :D
                         switch ((int)drawerItem.getIdentifier()) {
                             case 2:
-                                gotoReportActivity();
-                                break;
-                            case 3:
                                 signOut();
                                 break;
                         }
@@ -316,21 +316,14 @@ public class MainActivity extends AppCompatActivity {
                     };
                 })
                 .build();
-*/
     } /* set drawer */
-
-    private void gotoReportActivity() {
-        Intent intent=new Intent(MainActivity.this,ReportActivity.class);
-        intent.putExtra(MainActivity.GOOGLE_ACCOUNT, mGoogleSignInAccount);
-        startActivity(intent);
-    }
 
     private void signOut() {
 
         mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                //On Succesfull signout we navigate the user back to LoginActivity
+                //On Successful signout we navigate the user back to LoginActivity
                 Intent intent=new Intent(MainActivity.this,LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -439,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
                     tmpJob.job_id, tmpJob.name, tmpJob.user, tmpJob.elapsed_time);
             db.execSQL(sql);
         }
-        Toast.makeText(MainActivity.this, "Insert to DB: Success", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "Insert to DB: Success", Toast.LENGTH_SHORT).show();
     }
 
     public void printDebug(String data) {

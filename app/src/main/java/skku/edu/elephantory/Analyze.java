@@ -58,7 +58,7 @@ public class Analyze extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String title = "Connect to Hadoop history server";
+                String title = "Connect to hadoop history server";
                 String message = "Would you like to get the results?";
                 String titleButtonYes = "Yes";
                 String titleButtonNo = "No";
