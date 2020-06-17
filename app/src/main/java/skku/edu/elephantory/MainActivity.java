@@ -42,9 +42,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
@@ -103,69 +110,43 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
         mGoogleSignInAccount = getIntent().getParcelableExtra(GOOGLE_ACCOUNT);
 
-        // TCP Connection to Hadoop Cluster
+        // TCP Connection to hadoop Cluster
 
         final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                                        @Override
                                        public void onRefresh() {
 //                refreshData();
-                pullToRefresh.setRefreshing(false);
+            makeRequest();
+            contentView.setVisibility(View.GONE);
+            loadingView.setVisibility(View.VISIBLE);
+            final Handler handler = new Handler();
+            new Thread(new Runnable() {
+                           public void run() {
+                try{
+                    Thread.sleep(2000);
+                }
+                catch (Exception e) { } // Just catch the InterruptedException
+
+                handler.post(new Runnable() {
+                    public void run() {
+                        crossfade();
+                    }
+                });
+            }
+
+            }).start();
+
+            pullToRefresh.setRefreshing(false);
         }
         });
 
         editText = findViewById(R.id.editTextURL);
 
-        Button button = findViewById(R.id.buttonRequest);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String title = "Connect to Hadoop history server";
-                String message = "Would you like to get the results?";
-                String titleButtonYes = "Yes";
-                String titleButtonNo = "No";
-
-                makeRequest();
-//                AlertDialog dialog = makeRequestDialog(title, message, titleButtonYes, titleButtonNo);
-//                dialog.show();
-
-//                Toast.makeText(MainActivity.this, "Connecting...", Toast.LENGTH_SHORT).show();
-
-                contentView.setVisibility(View.GONE);
-                loadingView.setVisibility(View.VISIBLE);
-
-// Create a Handler instance on the main thread
-                final Handler handler = new Handler();
-
-// Create and start a new Thread
-                new Thread(new Runnable() {
-                    public void run() {
-                        try{
-                            Thread.sleep(5000);
-                        }
-                        catch (Exception e) { } // Just catch the InterruptedException
-
-                        // Now we use the Handler to post back to the main thread
-                        handler.post(new Runnable() {
-                            public void run() {
-                                // Set the View's visibility back on the main UI Thread
-                                crossfade();
-//                                loadingView.setVisibility(View.INVISIBLE);
- //                               contentView.setVisibility(View.VISIBLE);
-                            }
-                        });
-                    }
-
-                }).start();
-
-            }
-        });
-
-        Button button2 = findViewById(R.id.buttonDB);
-        button2.setOnClickListener(new View.OnClickListener() {
+        Button button_db= findViewById(R.id.buttonDB);
+        button_db.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentDB = new Intent(getApplicationContext(), Database.class);
@@ -213,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                Intent intentCollectData = new Intent(getApplicationContext(), CollectData.class);
+                Intent intentCollectData = new Intent(getApplicationContext(), HDFSManager.class);
                 startActivity(intentCollectData);
             }
         });
@@ -292,12 +273,10 @@ public class MainActivity extends AppCompatActivity {
 
         //if you want to update the items at a later time it is recommended to keep it in a variable
         PrimaryDrawerItem gotoHomeItem = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.drawer_item_home);
-        PrimaryDrawerItem gotoReportItem = new PrimaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_report);
-        SecondaryDrawerItem signOutItem = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.drawer_item_sign_out);
+        SecondaryDrawerItem signOutItem = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.drawer_item_sign_out);
 
-/*
         // Create the AccountHeader
-     /*   AccountHeader headerResult = new AccountHeaderBuilder()
+        AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
@@ -320,7 +299,6 @@ public class MainActivity extends AppCompatActivity {
 //                .withToolbar(toolbar)
                 .addDrawerItems(
                         gotoHomeItem,
-                        gotoReportItem,
                         new DividerDrawerItem(),
                         signOutItem
                 )
@@ -330,9 +308,6 @@ public class MainActivity extends AppCompatActivity {
                         // do something with the clicked item :D
                         switch ((int)drawerItem.getIdentifier()) {
                             case 2:
-                                gotoReportActivity();
-                                break;
-                            case 3:
                                 signOut();
                                 break;
                         }
@@ -341,21 +316,14 @@ public class MainActivity extends AppCompatActivity {
                     };
                 })
                 .build();
-*/
     } /* set drawer */
-
-    private void gotoReportActivity() {
-        Intent intent=new Intent(MainActivity.this,ReportActivity.class);
-        intent.putExtra(MainActivity.GOOGLE_ACCOUNT, mGoogleSignInAccount);
-        startActivity(intent);
-    }
 
     private void signOut() {
 
         mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                //On Succesfull signout we navigate the user back to LoginActivity
+                //On Successful signout we navigate the user back to LoginActivity
                 Intent intent=new Intent(MainActivity.this,LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
@@ -464,46 +432,8 @@ public class MainActivity extends AppCompatActivity {
                     tmpJob.job_id, tmpJob.name, tmpJob.user, tmpJob.elapsed_time);
             db.execSQL(sql);
         }
-        Toast.makeText(MainActivity.this, "Insert to DB: Success", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(MainActivity.this, "Insert to DB: Success", Toast.LENGTH_SHORT).show();
     }
-
-
-    private AlertDialog makeRequestDialog(CharSequence title, CharSequence message,
-                                          CharSequence titleButtonYes, CharSequence titleButtonNo) {
-        AlertDialog.Builder requestDialog = new AlertDialog.Builder(this);
-        requestDialog.setTitle(title);
-        requestDialog.setMessage(message);
-        requestDialog.setPositiveButton(titleButtonYes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(MainActivity.this, "It will take 5 seconds.", Toast.LENGTH_SHORT).show();
-
-                /*
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(Analyze.this, "Request completed.", Toast.LENGTH_SHORT).show();
-                    }
-                }, 5000);
-                 */
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                makeRequest();
-            }
-        });
-
-
-
-        requestDialog.setNegativeButton(titleButtonNo, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialogInterface, int i) {}
-        });
-
-        return requestDialog.create();
-    }
-
 
     public void printDebug(String data) {
         Log.d("Analyze", data);

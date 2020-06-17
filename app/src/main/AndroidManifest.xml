@@ -15,6 +15,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 
+        <activity android:name=".HDFSManager"></activity>
         <activity android:name=".MapReduceRunner"></activity>
         <activity android:name=".ShowTextFile"></activity>
         <activity android:name=".Database" />

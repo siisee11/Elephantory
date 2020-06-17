@@ -2,6 +2,7 @@ package skku.edu.elephantory;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,13 +14,14 @@ import android.widget.TextView;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 public class ShowTextFile extends AppCompatActivity {
     TextView txtRead;
-    final static String filePath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/sample/logfile.txt";
     String job_id;
 
     @Override
@@ -30,9 +32,21 @@ public class ShowTextFile extends AppCompatActivity {
         job_id = getIntent().getStringExtra("job_id");
         Log.d("ShowTextFile", "job_id: " + job_id);
 
-        txtRead = (TextView)findViewById(R.id.textView_showResult);
+        txtRead = (TextView)findViewById(R.id.textShowResult);
 
         mOnFileRead(job_id);
+    }
+
+    public void fileWrite(String fileName) {
+        try {
+            FileOutputStream fos = openFileOutput
+                    (fileName, // 파일명 지정
+                            Context.MODE_APPEND);// 저장모드
+            PrintWriter out = new PrintWriter(fos);
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void mOnFileRead(String job_id){
@@ -47,8 +61,6 @@ public class ShowTextFile extends AppCompatActivity {
         StringBuffer strBuffer = new StringBuffer();
         FileInputStream fis = null;
         try{
-            //InputStream is = new FileInputStream(path);
-
             fis = openFileInput(job_id);
             BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
             String line="";

@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapReduceRunner">
+    tools:context=".HDFSManager">
 
 
     <ImageView
-        android:id="@+id/appLogoImageMR"
+        android:id="@+id/appLogoImageHDFS"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginRight="5dp"
@@ -32,61 +33,54 @@
         app:layout_constraintHorizontal_bias="0.55"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/InputFileName"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_marginBottom="10dp"
-        android:text="TextView"
+    <ImageView
+        android:id = "@+id/rotateImage"
+        android:layout_width = "wrap_content"
+        android:layout_marginTop = "10dp"
+        android:layout_height = "wrap_content"
+        android:src = "@mipmap/hadoop"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/buttonlayoutMR"
-        app:layout_constraintTop_toBottomOf="@id/appLogoImageMR" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/buttonlinearlayout"
+        app:layout_constraintTop_toBottomOf="@id/appLogoImageHDFS"
+        android:layerType = "software" />
 
     <LinearLayout
-        android:id="@+id/buttonlayoutMR"
+        android:id="@+id/buttonlinearlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         >
 
         <Button
-            android:id="@+id/buttonMRStart"
-            android:layout_width="match_parent"
+            android:id="@+id/buttonUpload"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start"
-            android:layout_weight="1"
             android:layout_marginRight="10dp"
-            android:textAllCaps="true" />
+            android:layout_weight="1"
+            android:text="File Upload"
+            android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/buttonGrep"
-            android:layout_width="match_parent"
+            android:id="@+id/buttonls"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Grep"
             android:layout_weight="1"
-            android:layout_marginRight="10dp"
-            android:textAllCaps="true" />
+            android:text="Show File List"
+            android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/buttonWC"
-            android:layout_width="match_parent"
+            android:id="@+id/buttonDownload"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="WC"
+            android:layout_marginLeft="10dp"
             android:layout_weight="1"
-            android:layout_marginRight="10dp"
-            android:textAllCaps="true" />
-
-        <Button
-            android:id="@+id/buttonSort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Sort"
-            android:layout_weight="1"
-            android:textAllCaps="true" />
-
+            android:text="Retrieve File"
+            android:textAllCaps="false" />
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
 
+</androidx.constraintlayout.widget.ConstraintLayout>
