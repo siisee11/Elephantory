@@ -35,11 +35,10 @@
 
     <ImageView
         android:id = "@+id/rotateImage"
-        android:layout_width = "wrap_content"
+        android:layout_width = "150dp"
         android:layout_marginTop = "10dp"
-        android:layout_height = "wrap_content"
+        android:layout_height = "150dp"
         android:src = "@mipmap/hadoop"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/buttonlinearlayout"
@@ -69,17 +68,17 @@
             android:id="@+id/buttonls"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
-            android:text="Show File List"
+            android:text="Search File"
             android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/buttonDownload"
+            android:id="@+id/buttonrm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
             android:layout_weight="1"
-            android:text="Retrieve File"
+            android:text="Delete File"
             android:textAllCaps="false" />
     </LinearLayout>
 

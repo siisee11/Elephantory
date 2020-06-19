@@ -2,6 +2,7 @@ package skku.edu.elephantory;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
@@ -28,7 +29,6 @@ public class MapReduceRunner extends AppCompatActivity {
     public Button startButton;
     public Button grepButton;
     public Button wcButton;
-    public Button sortButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +38,6 @@ public class MapReduceRunner extends AppCompatActivity {
         startButton = (Button)findViewById(R.id.buttonMRStart);
         grepButton = (Button)findViewById(R.id.buttonGrep);
         wcButton = (Button)findViewById(R.id.buttonWC);
-        sortButton = (Button)findViewById(R.id.buttonSort);
 
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
         if (SDK_INT > 8) {
@@ -50,7 +49,7 @@ public class MapReduceRunner extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                AnalyzeThread analyzeThread = new AnalyzeThread("hello.sh");
+                AnalyzeThread analyzeThread = new AnalyzeThread("");
                 analyzeThread.start();
             }
 
@@ -126,44 +125,30 @@ public class MapReduceRunner extends AppCompatActivity {
                         Log.d(TAG, hCmd[0]);
                         AnalyzeThread analyzeThread = new AnalyzeThread(hCmd[0]);
                         analyzeThread.start();
-                    }
-                });
 
-                builder.setNegativeButton("취소", null);
+                        final Handler handler = new Handler();
+                        new Thread(new Runnable() {
+                            public void run() {
+                                try{
+                                    Thread.sleep(2000);
+                                }
+                                catch (Exception e) { } // Just catch the InterruptedException
 
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+                                handler.post(new Runnable() {
+                                    public void run() {
+                                        AlertDialog.Builder builder2 = new AlertDialog.Builder(MapReduceRunner.this);
+                                        builder2.setTitle("find result");
+                                        builder2.setMessage("WordCount Success\n");
+                                        builder2.setPositiveButton("Save", null);
+                                        builder2.setNegativeButton("Finish", null);
+                                        AlertDialog alertDialog2 = builder2.create();
 
-            }
+                                        alertDialog2.show();
+                                    }
+                                });
+                            }
 
-        });
-        sortButton.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                final String[] hCmd = {"run_sort.sh"};
-                LinearLayout dialog_group = new LinearLayout((MapReduceRunner.this));
-                dialog_group.setOrientation(LinearLayout.VERTICAL);
-                AlertDialog.Builder builder = new AlertDialog.Builder(MapReduceRunner.this);
-                final EditText input = new EditText(getApplicationContext());
-                input.setHint("Input");
-                final EditText output = new EditText(getApplicationContext());
-                output.setHint("Output");
-
-                dialog_group.addView(input);
-                dialog_group.addView(output);
-                builder.setView(dialog_group);
-                builder.setTitle("Put InputFile");
-                builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String inputFile = input.getText().toString();
-                        String outputFile = output.getText().toString();
-                        hCmd[0] += (" /" + inputFile + " /" + outputFile + " \"");
-                        Log.d(TAG, hCmd[0]);
-                        AnalyzeThread analyzeThread = new AnalyzeThread(hCmd[0]);
-                        analyzeThread.start();
+                        }).start();
                     }
                 });
 

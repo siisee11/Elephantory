@@ -35,15 +35,18 @@ public class ShowTextFile extends AppCompatActivity {
         txtRead = (TextView)findViewById(R.id.textShowResult);
 
         mOnFileRead(job_id);
+        fileWrite(job_id + "test");
     }
 
     public void fileWrite(String fileName) {
+        String fileContents = "Hello world!";
+
         try {
             FileOutputStream fos = openFileOutput
                     (fileName, // 파일명 지정
                             Context.MODE_APPEND);// 저장모드
-            PrintWriter out = new PrintWriter(fos);
-            out.close();
+            fos.write(fileContents.getBytes());
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
