@@ -5,8 +5,11 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
@@ -21,13 +24,14 @@ import java.net.Socket;
 
 public class HDFSManager extends AppCompatActivity {
     public static final int port = 54900;
-    public static final String tcpHost = "192.168.0.34";
+    public static final String tcpHost = "192.168.0.69";
     String TAG = "socketTest";
     public final String hadoopInputDataPath = "/Users/ash1209/hadoop_input/";
     public static Socket socket;
     public Button uploadButton;
     public Button lsButton;
-    public Button downloadButton;
+    public Button rmButton;
+    public ImageView elephant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,8 @@ public class HDFSManager extends AppCompatActivity {
 
         uploadButton = (Button)findViewById(R.id.buttonUpload);
         lsButton = (Button)findViewById(R.id.buttonls);
-        downloadButton = (Button)findViewById(R.id.buttonDownload);
+        rmButton = (Button)findViewById(R.id.buttonrm);
+        elephant = (ImageView)findViewById(R.id.rotateImage);
 
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
         if (SDK_INT > 8) {
@@ -61,13 +66,17 @@ public class HDFSManager extends AppCompatActivity {
                 builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String inputFile = input.getText().toString();
-                        hCmd[0] += (" " + hadoopInputDataPath + inputFile);
-                        Log.d(TAG, hCmd[0]);
+                        String inputFile = " " + hadoopInputDataPath + input.getText().toString();
+                       // hCmd[0] += (" " + hadoopInputDataPath + inputFile);
+                       // Log.d(TAG, hCmd[0]);
 
 
-                        HDFSClientThread hdfsClientThread = new HDFSClientThread(hCmd[0]);
+                        HDFSClientThread hdfsClientThread = new HDFSClientThread(hCmd[0], inputFile);
                         hdfsClientThread.start();
+
+                        /* image rotate */
+                        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
+                        elephant.setAnimation(animation);
                     }
                 });
 
@@ -84,16 +93,8 @@ public class HDFSManager extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                HDFSClientThread hdfsClientThread = new HDFSClientThread("ls.sh");
-                hdfsClientThread.start();
-            }
-
-        });
-        downloadButton.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                final String[] hCmd = {"download.sh"};
+                final String[] output = {""};
+                final String[] hCmd = {"ls.sh"};
                 LinearLayout dialog_group = new LinearLayout((HDFSManager.this));
                 dialog_group.setOrientation(LinearLayout.VERTICAL);
                 AlertDialog.Builder builder = new AlertDialog.Builder(HDFSManager.this);
@@ -104,16 +105,27 @@ public class HDFSManager extends AppCompatActivity {
                 builder.setView(dialog_group);
                 //builder.setTitle("Put InputFile");
                 builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String inputFile = input.getText().toString();
-                        hCmd[0] += ("/"+inputFile);
-                        Log.d(TAG, hCmd[0]);
-
-
-                        HDFSClientThread hdfsClientThread = new HDFSClientThread(hCmd[0]);
+                        HDFSClientThread hdfsClientThread = new HDFSClientThread(hCmd[0], inputFile);
                         hdfsClientThread.start();
+                        try {
+                            hdfsClientThread.join();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        output[0] += hdfsClientThread.lsOutput;
+                        String res = output[0];
+                        AlertDialog.Builder builder2 = new AlertDialog.Builder(HDFSManager.this);
+                        builder2.setTitle("Search Result");
+                        builder2.setMessage(res);
+                        builder2.setPositiveButton("Ok", null);
+
+                        AlertDialog alertDialog2 = builder2.create();
+
+                        alertDialog2.show();
                     }
                 });
 
@@ -121,74 +133,112 @@ public class HDFSManager extends AppCompatActivity {
 
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+
+
             }
 
         });
+
+       rmButton.setOnClickListener(new Button.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               final String[] output = {""};
+               final String[] hCmd = {"rm.sh"};
+               LinearLayout dialog_group = new LinearLayout((HDFSManager.this));
+               dialog_group.setOrientation(LinearLayout.VERTICAL);
+               AlertDialog.Builder builder = new AlertDialog.Builder(HDFSManager.this);
+               final EditText input = new EditText(getApplicationContext());
+               input.setHint("File Name to Delete");
+
+               dialog_group.addView(input);
+               builder.setView(dialog_group);
+               //builder.setTitle("Put InputFile");
+               builder.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                       String inputFile = input.getText().toString();
+                       HDFSClientThread hdfsClientThread = new HDFSClientThread(hCmd[0], inputFile);
+                       hdfsClientThread.start();
+                       try {
+                           hdfsClientThread.join();
+                       } catch (InterruptedException e) {
+                           e.printStackTrace();
+                       }
+
+                       output[0] += hdfsClientThread.lsOutput;
+                       String res = output[0];
+                       AlertDialog.Builder builder2 = new AlertDialog.Builder(HDFSManager.this);
+                       builder2.setTitle("Search Result");
+                       builder2.setMessage(res);
+                       builder2.setPositiveButton("Ok", null);
+
+                       AlertDialog alertDialog2 = builder2.create();
+
+                       alertDialog2.show();
+                   }
+               });
+
+               builder.setNegativeButton("취소", null);
+
+               AlertDialog alertDialog = builder.create();
+               alertDialog.show();
+
+
+           }
+
+       });
     }
 
     class HDFSClientThread extends Thread {
         public String hadoopCmd;
-        public HDFSClientThread(String _hadoopCmd){
+        public String hadoopCmdParam;
+        public String runCmd;
+        public String lsOutput;
+        public HDFSClientThread(String _hadoopCmd, String _hadoopCmdParam){
 
             hadoopCmd = _hadoopCmd;
+            hadoopCmdParam = _hadoopCmdParam;
         }
 
         public void connectToHadoopCluster(String hostName, int port) throws IOException {
-            Log.d(TAG, "### Read To Socket Connect : " + hostName + " " + port);
             socket = new Socket(hostName, port);
-            Log.d(TAG, "### Success To Socket Connect : " + hostName + " " + port);
-
         }
 
         public void disconnectToHadoopCluster() throws IOException {
             socket.close();
         }
 
-        public void setHadoopCommand(String _hadoopCmd){
-            hadoopCmd = _hadoopCmd;
+        public void setHadoopCommand(){
+            runCmd = hadoopCmd + " " + hadoopCmdParam;
         }
 
         public void sendHadoopCommand() throws IOException {
             BufferedWriter writeBuf = new BufferedWriter( new OutputStreamWriter( socket.getOutputStream()));
 
-            writeBuf.write(hadoopCmd);
+            writeBuf.write(runCmd);
             writeBuf.newLine();
             writeBuf.flush();
         }
 
-        public String getHadoopOutput() throws IOException {
+        public void getHadoopOutput() throws IOException {
 
-            if(hadoopCmd.equals("ls.sh")) {
+            if(hadoopCmd.equals("ls.sh") || hadoopCmd.equals("rm.sh")) {
                 BufferedReader readBuf = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String output = readBuf.readLine();
-                return output;
-            } else if(hadoopCmd.equals("download.sh")){
-                /* Get File From Socket Connection */
+                lsOutput = readBuf.readLine();
 
-                return "Download is Completed";
             }
-
-            return "Success";
-
         }
 
         public void run(){
             try{
-                String res;
                 this.connectToHadoopCluster(tcpHost, port);
+
+                this.setHadoopCommand();
                 this.sendHadoopCommand();
-                /*
-                res = this.getHadoopOutput();
-                AlertDialog.Builder builder = new AlertDialog.Builder(HDFSManager.this);
-                builder.setTitle("hadoop Output");
-                builder.setMessage(res);
-                builder.setPositiveButton("Ok", null);
 
-                AlertDialog alertDialog = builder.create();
+                this.getHadoopOutput();
 
-                alertDialog.show();*/
                 this.disconnectToHadoopCluster();
-
 
             } catch (IOException e) {
                 e.printStackTrace();

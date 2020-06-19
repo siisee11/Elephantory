@@ -79,14 +79,6 @@
             android:layout_marginRight="10dp"
             android:textAllCaps="true" />
 
-        <Button
-            android:id="@+id/buttonSort"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Sort"
-            android:layout_weight="1"
-            android:textAllCaps="true" />
-
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 

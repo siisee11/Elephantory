@@ -56,6 +56,9 @@ import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -364,6 +367,7 @@ public class MainActivity extends AppCompatActivity {
     /* from Analyze */
     public void makeRequest() {
         String url = editText.getText().toString();
+        Log.d("MAKEREQUEST", "MAKEREQUEST");
 
         StringRequest request = new StringRequest(
                 Request.Method.GET,
@@ -437,5 +441,26 @@ public class MainActivity extends AppCompatActivity {
 
     public void printDebug(String data) {
         Log.d("Analyze", data);
+    }
+
+
+    public void fileWrite(String fileName) throws FileNotFoundException {
+        Log.d("FILE", "filewrite()");
+        String fileContents = "Hello world!";
+
+        File file = new File(getFilesDir(), fileName);
+
+        try {
+            FileOutputStream fos= new FileOutputStream(file);
+            /*
+            FileOutputStream fos = openFileOutput
+                    (fileName, // 파일명 지정
+                            Context.MODE_PRIVATE);// 저장모드
+             */
+            fos.write(fileContents.getBytes());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

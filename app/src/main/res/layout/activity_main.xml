@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:text="http://220.118.54.135:8888/"
+        android:text="http://115.145.178.88:8887/"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         app:layout_constraintBottom_toTopOf="@id/buttonDB"
